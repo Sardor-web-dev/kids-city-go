@@ -2,13 +2,30 @@ package config
 
 import (
 	"log"
+	"os"
 
-	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"kids-city-go/models"
 )
 
-func LoadEnv() {
-	err := godotenv.Load()
+var DB *gorm.DB
+
+func ConnectDB() {
+	LoadEnv()
+
+	dsn := os.Getenv("DB_URL")
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Println("⚠️  .env файл не найден, переменные окружения загружаются из системы")
+		log.Fatal("❌ Не удалось подключиться к базе данных:", err)
 	}
+
+	// Миграции
+	err = db.AutoMigrate(&models.Cloth{})
+	if err != nil {
+		log.Fatal("❌ Ошибка миграции:", err)
+	}
+
+	DB = db
+	log.Println("✅ Успешное подключение к базе данных")
 }

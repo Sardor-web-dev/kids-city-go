@@ -8,13 +8,10 @@ import (
 )
 
 func main() {
-	config.ConnectDB() // Инициализируем подключение
-
-	config.LoadEnv()
+	config.ConnectDB() // Подключаем БД и загружаем .env
 
 	r := gin.Default()
-
 	routes.SetupRoutes(r)
 
-	r.Run(":8080")
+	r.Run(":8080") // Слушаем порт 8080
 }
