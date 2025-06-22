@@ -17,3 +17,15 @@ func GetCloths(c *gin.Context) {
 
 	c.JSON(http.StatusOK, clothes)
 }
+
+func GetClothByID(c *gin.Context) {
+	id := c.Param("id")
+	var cloth models.Cloth
+
+	if err := config.DB.First(&cloth, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Одежда не найдена"})
+		return
+	}
+
+	c.JSON(http.StatusOK, cloth)
+}
