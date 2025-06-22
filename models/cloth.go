@@ -9,7 +9,7 @@ type Cloth struct {
 	Name        string         `gorm:"column:name" json:"name"`
 	Description string         `gorm:"column:description" json:"description"`
 	Gender      string         `gorm:"column:gender" json:"gender"`
-	Image       string         `gorm:"column:image" json:"image"`
+	Image       string         `gorm:"column:Image" json:"Image"`
 	AuthorID    uint           `gorm:"column:authorId" json:"authorId"`
 	Price       float64        `gorm:"column:price" json:"price"`
 	Size        pq.StringArray `gorm:"type:text[];column:size" json:"size"`
