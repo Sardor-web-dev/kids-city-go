@@ -1,17 +1,19 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"kids-city-go/config"
 	"kids-city-go/routes"
-
-	"github.com/gin-gonic/gin"
+	"os"
+    "kids-city-go/middleware"
 )
 
 func main() {
-	config.ConnectDB() // Подключаем БД и загружаем .env
-
+	_ = godotenv.Load() 
+	config.ConnectDB()
+    middleware.InitJWTSecret() // ← вот здесь
 	r := gin.Default()
 	routes.SetupRoutes(r)
-
-	r.Run(":8080") // Слушаем порт 8080
+	r.Run(":" + os.Getenv("PORT"))
 }
