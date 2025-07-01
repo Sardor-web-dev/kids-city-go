@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"kids-city-go/config"
 	"kids-city-go/models"
@@ -60,6 +61,8 @@ func AddToFavorites(c *gin.Context) {
 	// Проверка существования товара
 	var cloth models.Cloth
 	if err := config.DB.First(&cloth, input.ClothID).Error; err != nil {
+		fmt.Println("Добавление в избранное", userID, input.ClothID)
+
 		c.JSON(http.StatusNotFound, gin.H{"error": "Одежда не найдена"})
 		return
 	}
@@ -83,7 +86,16 @@ func AddToFavorites(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Добавлено в избранное"})
+	// Прелоадим Cloth
+	if err := config.DB.Preload("Cloth").First(&fav, fav.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при загрузке одежды"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Добавлено в избранное",
+		"cloth":   fav.Cloth,
+	})
 }
 
 // Удалить товар из избранного
