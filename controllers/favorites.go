@@ -16,14 +16,18 @@ func GetFavorites(c *gin.Context) {
 		return
 	}
 
-	userID, ok := userIDInterface.(uint)
+	userID, ok := userIDInterface.(int)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка получения userId"})
 		return
 	}
 
 	var favorites []models.Favorite
-	if err := config.DB.Preload("Cloth").Preload("User").Where(`"userId" = ?`, userID).Find(&favorites).Error; err != nil {
+	if err := config.DB.
+		Preload("Cloth").
+		Preload("User").
+		Where("userId = ?", userID).
+		Find(&favorites).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении избранного"})
 		return
 	}
@@ -48,9 +52,9 @@ func AddToFavorites(c *gin.Context) {
 		return
 	}
 
-	userID, ok := userIDInterface.(uint)
+	userID, ok := userIDInterface.(int)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Некорректный userId"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Некорректный userId"})
 		return
 	}
 
@@ -89,7 +93,7 @@ func DeleteFromFavorites(c *gin.Context) {
 		return
 	}
 
-	userID, ok := userIDInterface.(uint)
+	userID, ok := userIDInterface.(int)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка получения userId"})
 		return
@@ -102,11 +106,12 @@ func DeleteFromFavorites(c *gin.Context) {
 		return
 	}
 
-	if err := config.DB.Where(`"userId" = ? AND "clothId" = ?`, userID, clothID).Delete(&models.Favorite{}).Error; err != nil {
+	if err := config.DB.
+		Where("userId = ? AND clothId = ?", userID, clothID).
+		Delete(&models.Favorite{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при удалении из избранного"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
-
