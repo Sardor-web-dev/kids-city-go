@@ -25,14 +25,13 @@ func GetFavorites(c *gin.Context) {
 	var favorites []models.Favorite
 	if err := config.DB.
 		Preload("Cloth").
-		Preload("User").
-		Where("userId = ?", userID).
+		Where(`"userId" = ?`, userID).
 		Find(&favorites).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении избранного"})
 		return
 	}
 
-	c.JSON(http.StatusOK, favorites)
+	c.JSON(http.StatusOK, gin.H{"favorites": favorites})
 }
 
 // Добавить товар в избранное
@@ -58,17 +57,19 @@ func AddToFavorites(c *gin.Context) {
 		return
 	}
 
-	// Проверка, что такой cloth существует
+	// Проверка существования товара
 	var cloth models.Cloth
 	if err := config.DB.First(&cloth, input.ClothID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Одежда не найдена"})
 		return
 	}
 
-	// Проверка, нет ли уже в избранном
+	// Проверка на дубликат
 	var existing models.Favorite
-	if err := config.DB.Where("userId = ? AND clothId = ?", userID, input.ClothID).First(&existing).Error; err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Уже в избранном"})
+	if err := config.DB.
+		Where(`"userId" = ? AND "clothId" = ?`, userID, input.ClothID).
+		First(&existing).Error; err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Уже добавлено в избранное"})
 		return
 	}
 
@@ -107,7 +108,7 @@ func DeleteFromFavorites(c *gin.Context) {
 	}
 
 	if err := config.DB.
-		Where("userId = ? AND clothId = ?", userID, clothID).
+		Where(`"userId" = ? AND "clothId" = ?`, userID, clothID).
 		Delete(&models.Favorite{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при удалении из избранного"})
 		return
