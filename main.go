@@ -12,7 +12,7 @@ import (
 func main() {
 	_ = godotenv.Load() 
 	config.ConnectDB()
-    middleware.InitJWTSecret() // ← вот здесь
+    middleware.InitJWTSecret() 
 	r := gin.Default()
 	routes.SetupRoutes(r)
 	r.Run(":" + os.Getenv("PORT"))

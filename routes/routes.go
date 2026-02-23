@@ -7,12 +7,10 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine) {
-	// Публичные маршруты
 	r.GET("/api/cloths", controllers.GetCloths)
 	r.GET("/api/cloths/:id", controllers.GetClothByID)
 	r.POST("/api/login", controllers.Login)
 
-	// Заказы без авторизации — можно разрешить, но userId будет пустым
 	r.POST("/api/orders", middleware.AuthMiddleware(), controllers.CreateOrder)
 
 	// Защищенные маршруты
